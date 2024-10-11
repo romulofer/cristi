@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import time
 
-ultimo_edital = 3451
+ultimo_edital = 3503
 
 def send_email(link, recipient_email, sender_email, sender_password):
     # Setup the MIME
@@ -59,7 +59,7 @@ def get_links_from_url(url, recipient_email, sender_email, sender_password):
                     # If the number is greater than 3136, send an email
                     if edital_number > ultimo_edital:
                         print(link)
-                        send_email(link, recipient_email, sender_email, sender_password)
+                        #send_email(link, recipient_email, sender_email, sender_password)
 
     except requests.exceptions.RequestException as e:
         print(f"[-] An error occurred with URL {url}: {e}")
