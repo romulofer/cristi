@@ -14,7 +14,7 @@ local urls = {
   "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/husm-ufsm?b_start:int=60",
 }
 
-local ultimo_edital = 3848
+local ultimo_edital = 3906
 
 -- Function to get current timestamp
 local function get_timestamp()
