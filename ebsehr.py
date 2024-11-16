@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import time
 
-ultimo_edital = 4034
+ultimo_edital = 4069
 
 def send_email(link, recipient_email, sender_email, sender_password):
     # Setup the MIME
