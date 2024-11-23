@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import time
 
-ultimo_edital = 4219
+ultimo_edital = 4283
 
 def send_email(link, recipient_email, sender_email, sender_password):
     # Setup the MIME
@@ -50,13 +50,13 @@ def get_links_from_url(url, recipient_email, sender_email, sender_password):
         # Filter and process links containing 'edital'
         for link in links:
             if 'edital' in link.lower():
-                # Use a regular expression to find the number between 'edital-no-' and '-'
-                match = re.search(r'/edital-no-(\d+)-', link)
+                # Use a regular expression to find the number between 'edital-no-' and '-' or 'edital-' and '-'
+                match = re.search(r'/edital-no-(\d+)-|/edital-(\d+)-', link)
                 if match:
-                    edital_number = int(match.group(1))
+                    edital_number = int(match.group(1) or match.group(2))
                     # print(f"{link}\n{edital_number}")
 
-                    # If the number is greater than 3136, send an email
+                    # If the number is greater than ultimo_edital, send an email
                     if edital_number > ultimo_edital:
                         print(link)
                         #send_email(link, recipient_email, sender_email, sender_password)
@@ -75,7 +75,7 @@ urls = [
   "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/husm-ufsm",
   "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/husm-ufsm?b_start:int=60",
   "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr?b_start:int=150"
+  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr?b_start:int=150"]
 
 recipient_email = "cristilunkes@gmail.com"  # Replace with the recipient's email
 sender_email = "rfe89@hotmail.com"  # Replace with your Hotmail email

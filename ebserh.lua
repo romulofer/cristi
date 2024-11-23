@@ -2,6 +2,8 @@ local http = require("socket.http")
 local ltn12 = require("ltn12")
 local socket = require("socket")  -- For sleep functionality
 
+local ultimo_edital = 4283
+
 -- List of URLs to check
 local urls = {
   "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-ufsc",
@@ -16,8 +18,6 @@ local urls = {
   "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr?b_start:int=150"
 }
 
-local ultimo_edital = 4219
-
 -- Function to get current timestamp
 local function get_timestamp()
     return os.date("%Y-%m-%d %H:%M:%S")
@@ -25,7 +25,7 @@ end
 
 -- Function to extract edital number from link
 local function get_edital_number(link)
-    local number = string.match(link, "edital%-no%-(%d+)%-")
+    local number = string.match(link, "edital%-no%-(%d+)%-") or string.match(link, "edital%-(%d+)%-")
     if number then
         return tonumber(number)
     end
