@@ -2,7 +2,7 @@ local http = require("socket.http")
 local ltn12 = require("ltn12")
 local socket = require("socket")  -- For sleep functionality
 
-local ultimo_edital = 4304
+local ultimo_edital = 4417
 
 -- List of URLs to check
 local urls = {
