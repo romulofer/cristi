@@ -18,6 +18,18 @@ local urls = {
   "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr?b_start:int=150"
 }
 
+-- ANSI escape codes for colors
+local colors = {
+    reset = "\27[0m",
+    red = "\27[31m",
+    green = "\27[32m",
+    yellow = "\27[33m",
+    blue = "\27[34m",
+    magenta = "\27[35m",
+    cyan = "\27[36m",
+    white = "\27[37m"
+}
+
 -- Function to get current timestamp
 local function get_timestamp()
     return os.date("%Y-%m-%d %H:%M:%S")
@@ -35,21 +47,10 @@ end
 -- Function to extract links from HTML content
 local function extract_edital_links(html)
     local links = {}
-    -- Match both href and src attributes
     for link in html:gmatch('href%s*=%s*["\']([^"\']+)["\']') do
-        -- Only add links containing "edital"
         if string.match(string.lower(link), "edital") then
             local number = get_edital_number(link)
             if number and number > ultimo_edital then
-                table.insert(links, link)
-            end
-        end
-    end
-    for link in html:gmatch('src%s*=%s*["\']([^"\']+)["\']') do
-        -- Only add links containing "edital"
-        if string.match(string.lower(link), "edital") then
-            local number = get_edital_number(link)
-            if number and number > 3500 then
                 table.insert(links, link)
             end
         end
@@ -61,14 +62,12 @@ end
 local function fetch_webpage(url)
     local response = {}
 
-    -- Set up headers to mimic a browser request
     local headers = {
         ["User-Agent"] = "Mozilla/5.0",
         ["Accept"] = "*/*"
     }
 
-    -- Make the HTTP request
-    local status, code, headers, status_line = http.request{
+    local status, code = http.request{
         url = url,
         sink = ltn12.sink.table(response),
         headers = headers
@@ -87,64 +86,59 @@ end
 
 -- Process a single URL
 local function process_url(url)
-    print("\nFetching links containing 'edital' with number > ".. ultimo_edital .." from: " .. url)
-    print("-------------------------------------------")
+    print(colors.cyan .. "\nFetching links containing 'edital' with number > " .. ultimo_edital .. " from: " .. url .. colors.reset)
+    print(colors.yellow .. "-------------------------------------------" .. colors.reset)
 
     local success, result = pcall(function()
-        -- Fetch webpage content
         local content = fetch_webpage(url)
-
-        -- Extract and print links
         local links = extract_edital_links(content)
 
         if #links == 0 then
-            print("No matching links found!")
+            print(colors.red .. "No matching links found!" .. colors.reset)
         else
-            print("Found " .. #links .. " matching links:")
+            print(colors.green .. "Found " .. #links .. " matching links:" .. colors.reset)
             for i, link in ipairs(links) do
-                print(i .. ". " .. link)
+                print(colors.blue .. i .. ". " .. link .. colors.reset)
             end
         end
     end)
 
     if not success then
-        print("Error processing URL: " .. result)
+        print(colors.red .. "Error processing URL: " .. result .. colors.reset)
     end
 end
 
--- Function to clear the console (works on both Windows and Unix-like systems)
+-- Function to clear the console
 local function clear_console()
-    if package.config:sub(1,1) == '\\' then  -- Windows
+    if package.config:sub(1,1) == '\\' then
         os.execute("cls")
-    else  -- Unix-like
+    else
         os.execute("clear")
     end
 end
 
 -- Main execution
 local function main()
-    local interval = 20 * 60  -- 20 minutes in seconds
+    local interval = 20 * 60
     local iteration = 1
 
     while true do
         clear_console()
-        print("Iteration #" .. iteration .. " - Started at: " .. get_timestamp())
-        print("Next check will be in 20 minutes")
-        print("=======================================")
+        print(colors.magenta .. "Iteration #" .. iteration .. " - Started at: " .. get_timestamp() .. colors.reset)
+        print(colors.yellow .. "Next check will be in 20 minutes" .. colors.reset)
+        print(colors.cyan .. "=======================================" .. colors.reset)
 
-        print("Processing " .. #urls .. " URLs")
+        print(colors.white .. "Processing " .. #urls .. " URLs" .. colors.reset)
 
         for _, url in ipairs(urls) do
             process_url(url)
         end
 
-        print("\nFinished processing all URLs at: " .. get_timestamp())
-        print("=======================================")
-        print("Waiting 20 minutes before next check...")
+        print(colors.green .. "\nFinished processing all URLs at: " .. get_timestamp() .. colors.reset)
+        print(colors.cyan .. "=======================================" .. colors.reset)
+        print(colors.yellow .. "Waiting 20 minutes before next check..." .. colors.reset)
 
-        -- Sleep for 20 minutes
         socket.sleep(interval)
-
         iteration = iteration + 1
     end
 end
@@ -152,7 +146,7 @@ end
 -- Run the program with error handling
 local success, error_msg = pcall(main)
 if not success then
-    print("Program crashed with error: " .. error_msg)
-    print("Press Enter to exit...")
+    print(colors.red .. "Program crashed with error: " .. error_msg .. colors.reset)
+    print(colors.yellow .. "Press Enter to exit..." .. colors.reset)
     io.read()
 end
