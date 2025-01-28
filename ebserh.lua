@@ -3,6 +3,8 @@ local ltn12 = require("ltn12")
 local socket = require("socket")  -- For sleep functionality
 
 local ultimo_edital = 4417
+local ano_especial = 2025
+local limite_ano_especial = 283
 
 -- List of URLs to check
 local urls = {
@@ -37,11 +39,14 @@ end
 
 -- Function to extract edital number from link
 local function get_edital_number(link)
-    local number = string.match(link, "edital%-no%-(%d+)%-") or string.match(link, "edital%-(%d+)%-")
+    -- Padrão para capturar o número no formato "número-ano"
+    local number = string.match(link, "edital%-no%-(%d+%-%d+)%-")
     if number then
-        return tonumber(number)
+        -- Extrai o número e o ano
+        local numero_edital, ano = string.match(number, "^(%d+)%-(%d+)$")
+        return tonumber(numero_edital), tonumber(ano)
     end
-    return nil
+    return nil, nil
 end
 
 -- Function to extract links from HTML content
@@ -49,9 +54,13 @@ local function extract_edital_links(html)
     local links = {}
     for link in html:gmatch('href%s*=%s*["\']([^"\']+)["\']') do
         if string.match(string.lower(link), "edital") then
-            local number = get_edital_number(link)
-            if number and number > ultimo_edital then
-                table.insert(links, link)
+            local numero_edital, ano = get_edital_number(link)
+            if numero_edital then
+                -- Verifica se o ano é 2025 e ajusta o limite de comparação
+                local limite = (ano == ano_especial) and limite_ano_especial or ultimo_edital
+                if numero_edital > limite then
+                    table.insert(links, {link = link, number = numero_edital, ano = ano})
+                end
             end
         end
     end
@@ -86,7 +95,7 @@ end
 
 -- Process a single URL
 local function process_url(url)
-    print(colors.cyan .. "\nFetching links containing 'edital' with number > " .. ultimo_edital .. " from: " .. url .. colors.reset)
+    print(colors.cyan .. "\nFetching links containing 'edital' from: " .. url .. colors.reset)
     print(colors.yellow .. "-------------------------------------------" .. colors.reset)
 
     local success, result = pcall(function()
@@ -97,8 +106,8 @@ local function process_url(url)
             print(colors.red .. "No matching links found!" .. colors.reset)
         else
             print(colors.green .. "Found " .. #links .. " matching links:" .. colors.reset)
-            for i, link in ipairs(links) do
-                print(colors.blue .. i .. ". " .. link .. colors.reset)
+            for i, link_info in ipairs(links) do
+                print(colors.blue .. i .. ". " .. link_info.link .. " (Number: " .. link_info.number .. ", Year: " .. link_info.ano .. ")" .. colors.reset)
             end
         end
     end)
