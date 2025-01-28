@@ -4,7 +4,7 @@ local socket = require("socket")  -- For sleep functionality
 
 local ultimo_edital = 4417
 local ano_especial = 2025
-local limite_ano_especial = 283
+local limite_ano_especial = 317
 
 -- List of URLs to check
 local urls = {
