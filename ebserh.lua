@@ -1,23 +1,23 @@
 local http = require("socket.http")
 local ltn12 = require("ltn12")
-local socket = require("socket")  -- For sleep functionality
+local socket = require("socket") -- For sleep functionality
 
 local ultimo_edital = 4417
 local ano_especial = 2025
-local limite_ano_especial = 331
+local limite_ano_especial = 392
 
 -- List of URLs to check
 local urls = {
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-ufsc",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-ufsc?b_start:int=160",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/he-ufpel",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/he-ufpel?b_start:int=60",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-furg",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-furg?b_start:int=60",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/husm-ufsm",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/husm-ufsm?b_start:int=60",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr",
-  "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr?b_start:int=150"
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-ufsc",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-ufsc?b_start:int=180",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/he-ufpel",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/he-ufpel?b_start:int=60",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-furg",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/hu-furg?b_start:int=60",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/husm-ufsm",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/husm-ufsm?b_start:int=60",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr",
+    "https://www.gov.br/ebserh/pt-br/acesso-a-informacao/agentes-publicos/concursos-e-selecoes/concursos/2023/concurso-no-01-2023-ebserh-nacional/convocacoes/chc-ufpr?b_start:int=180"
 }
 
 -- ANSI escape codes for colors
@@ -59,7 +59,7 @@ local function extract_edital_links(html)
                 -- Verifica se o ano é 2025 e ajusta o limite de comparação
                 local limite = (ano == ano_especial) and limite_ano_especial or ultimo_edital
                 if numero_edital > limite then
-                    table.insert(links, {link = link, number = numero_edital, ano = ano})
+                    table.insert(links, { link = link, number = numero_edital, ano = ano })
                 end
             end
         end
@@ -76,7 +76,7 @@ local function fetch_webpage(url)
         ["Accept"] = "*/*"
     }
 
-    local status, code = http.request{
+    local status, code = http.request {
         url = url,
         sink = ltn12.sink.table(response),
         headers = headers
@@ -107,7 +107,11 @@ local function process_url(url)
         else
             print(colors.green .. "Found " .. #links .. " matching links:" .. colors.reset)
             for i, link_info in ipairs(links) do
-                print(colors.blue .. i .. ". " .. link_info.link .. " (Number: " .. link_info.number .. ", Year: " .. link_info.ano .. ")" .. colors.reset)
+                print(colors.blue ..
+                    i ..
+                    ". " ..
+                    link_info.link ..
+                    " (Number: " .. link_info.number .. ", Year: " .. link_info.ano .. ")" .. colors.reset)
             end
         end
     end)
@@ -119,7 +123,7 @@ end
 
 -- Function to clear the console
 local function clear_console()
-    if package.config:sub(1,1) == '\\' then
+    if package.config:sub(1, 1) == '\\' then
         os.execute("cls")
     else
         os.execute("clear")
